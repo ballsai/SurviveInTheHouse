@@ -9,7 +9,8 @@ class Model:
         self.x = x
         self.y = y 
 
-        
+    def hit(self, other, hit_size):
+        return (abs(self.x - other.x) <= hit_size) and (abs(self.y - other.y) <= hit_size)
 
 class Player(Model):
 
@@ -28,7 +29,7 @@ class Player(Model):
     
 
     def update(self, delta):
-        print(self.x,self.y)
+        #print(self.x,self.y)
         if self.x < 37:
             self.x += MOVEMENT_SPEED
         elif self.x > self.world.width-37:
@@ -47,13 +48,7 @@ class Box(Model):
     def update(self, delta):
         if self.x < 37:
             self.x += self.player.x+100
-        elif self.x > self.world.width-100:
-            self.x -= self.player.x+100
-            print("Touch Edge")
-        elif self.y<90:
-            self.y += self.player.y
-        elif self.y >self.world.height-90:
-            self.y -= self.player.x
+        
 
 
 class World:
@@ -64,6 +59,7 @@ class World:
         self.player = Player(self, 100,100)
         self.box = Box(self, 300,400)
 
+
     def control(self, keys):
         self.player.control(keys)
         if keys[key.SPACE]:
@@ -73,6 +69,10 @@ class World:
 
     def update(self, delta):
         self.player.update(delta)
+
+        if self.player.hit(self.box, 100):
+
+            self.box.x = self.player.x-100
 
         
 
