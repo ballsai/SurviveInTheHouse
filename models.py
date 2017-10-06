@@ -5,11 +5,7 @@ class Model:
     def __init__(self, world, x, y):
         self.world = world
         self.x = x
-        self.y = y
-
-    def hit(self, other, hit_size):
-        return (abs(self.x - other.x) <= hit_size) and (abs(self.y - other.y) <= hit_size)
-        
+        self.y = y     
 
 class Player(Model):
 
@@ -28,8 +24,15 @@ class Player(Model):
     
 
     def update(self, delta):
-        if self.x < 0:
-            self.x = 0
+        print(self.x,self.y)
+        if self.x < 37:
+            self.x += 5
+        elif self.x > self.world.width-37:
+            self.x -= 5
+        elif self.y<90:
+            self.y += 5
+        elif self.y >self.world.height-90:
+            self.y -= 5
 
 
 class Box(Model):
@@ -50,14 +53,13 @@ class World:
         self.box = Box(self, 300,400)
 
     def control(self, keys):
-        self.player.control(keys) 
+        self.player.control(keys)
+
 
     def update(self, delta):
         self.player.update(delta)
 
-        if self.player.hit(self.box, 200):
-           self.player.x -= 5 
-           self.player.y -= 5
+       
 
 
 
