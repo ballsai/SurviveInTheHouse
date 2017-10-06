@@ -41,9 +41,10 @@ class SurviveWindow(arcade.Window):
         arcade.start_render()
         
         self.world.control(keys) 
-
-        self.player_sprite.draw()
+        
         self.box_sprite.draw()
+        self.player_sprite.draw()
+        
 
 
     def update(self,delta):
