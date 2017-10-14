@@ -72,13 +72,12 @@ class Ghost_LV1(Model):
             
             if self.x < self.world.player.x:
                 self.x += 1
-            elif self.x > self.world.player.x:
+            if self.x > self.world.player.x:
                 self.x -= 1
-
-        elif abs(self.y-self.world.player.y) >= 1:
+        if abs(self.y-self.world.player.y) >= 1:
             if self.y < self.world.player.y:
                 self.y += 1
-            elif self.y > self.world.player.y:
+            if self.y > self.world.player.y:
                 self.y -= 1
           
 
@@ -126,6 +125,17 @@ class World:
                 self.ghost_lv1.y -= 1
             elif self.ghost_lv1.y == self.box.y+40:
                 self.ghost_lv1.y += 1
+
+        if self.player.hit_obj(self.ghost_lv1,0,0,-40,40):
+            print("GHOST CAUGHT YOU")
+            
+            if (self.player.x == self.ghost_lv1.x-30 or 
+               self.player.x == self.ghost_lv1.x+30 or
+               self.player.y == self.ghost_lv1.y  ) :
+                quit()
+             
+                
+           
 
         
         
