@@ -103,7 +103,7 @@ class World:
     def update(self, delta):
         self.player.update(delta)
         self.ghost_lv1.update(delta)
-
+        
         
         if self.player.hit_obj(self.box,0,40,-60,60):
 
@@ -127,9 +127,9 @@ class World:
             elif self.ghost_lv1.y == self.box.y+40:
                 self.ghost_lv1.y += 1
 
-
-
-
+        
+        
+        
 
 
                 
