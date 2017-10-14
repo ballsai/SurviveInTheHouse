@@ -47,15 +47,19 @@ class SurviveWindow(arcade.Window):
             self.player_sprite.draw()
             self.box_sprite.draw()
         else:
-             self.player_sprite.draw()
+            self.player_sprite.draw()
 
         if self.world.ghost_lv1.y >= self.world.box.y+40:
             self.ghost_sprite.draw()
             self.box_sprite.draw()
         else:
-            self.ghost_sprite.draw()
-        
-        
+            if self.world.player.y < self.world.ghost_lv1.y: 
+                self.ghost_sprite.draw()
+                self.player_sprite.draw()
+            else:
+                self.ghost_sprite.draw()
+
+
     def update(self,delta):
         self.world.update(delta)
 
