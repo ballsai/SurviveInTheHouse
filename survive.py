@@ -42,8 +42,15 @@ class SurviveWindow(arcade.Window):
         
         self.world.control(keys) 
         
-        self.box_sprite.draw()
-        self.player_sprite.draw()
+        if self.world.player.y >= self.world.box.y+40:
+            self.player_sprite.draw()
+            self.box_sprite.draw()
+            
+        else:
+            self.box_sprite.draw()
+            self.player_sprite.draw()
+
+
         
 
 

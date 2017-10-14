@@ -1,7 +1,9 @@
 import arcade
 from pyglet.window import key
 
-MOVEMENT_SPEED = 5
+PLAYER_MARGIN = 20
+BOX_MARGIN = 40
+MOVEMENT_SPEED = 2
 
 class Model:
     def __init__(self, world, x, y):
@@ -9,8 +11,8 @@ class Model:
         self.x = x
         self.y = y 
 
-    def hit(self, other, hit_size):
-        return (abs(self.x - other.x) <= hit_size) and (abs(self.y - other.y) <= hit_size)
+
+
 
 class Player(Model):
 
@@ -29,15 +31,15 @@ class Player(Model):
     
 
     def update(self, delta):
-        #print(self.x,self.y)
-        if self.x < 37:
+        
+        if self.x < PLAYER_MARGIN:
             self.x += MOVEMENT_SPEED
-        elif self.x > self.world.width-37:
+        elif self.x > self.world.width-PLAYER_MARGIN:
             self.x -= MOVEMENT_SPEED
-            print("Touch Edge")
-        elif self.y<90:
+            
+        elif self.y<PLAYER_MARGIN+30:
             self.y += MOVEMENT_SPEED 
-        elif self.y >self.world.height-90:
+        elif self.y >self.world.height-PLAYER_MARGIN-30:
             self.y -= MOVEMENT_SPEED 
 
 
@@ -46,8 +48,14 @@ class Box(Model):
         super().__init__(world, x, y)
  
     def update(self, delta):
-        if self.x < 37:
-            self.x += self.player.x+100
+        if self.x < 100:
+            self.x += MOVEMENT_SPEED
+        elif self.x > self.world.width-100:
+            self.x -= MOVEMENT_SPEED
+        elif self.y<100:
+            self.y += MOVEMENT_SPEED 
+        elif self.y >self.world.height-100:
+            self.y -= MOVEMENT_SPEED 
         
 
 
@@ -56,7 +64,7 @@ class World:
         self.width = width
         self.height = height
         
-        self.player = Player(self, 100,100)
+        self.player = Player(self, 100,200)
         self.box = Box(self, 300,400)
 
 
@@ -70,9 +78,31 @@ class World:
     def update(self, delta):
         self.player.update(delta)
 
-        if self.player.hit(self.box, 100):
+        if self.player.y >= self.box.y and self.player.y <= self.box.y+40:
+            if self.player.x+20 == self.box.x-40:
+                self.player.x -= MOVEMENT_SPEED
+            elif self.player.x-20 == self.box.x+40:
+                self.player.x += MOVEMENT_SPEED
 
-            self.box.x = self.player.x-100
+        if self.player.x+20 >= self.box.x-40 and self.player.x-20 <= self.box.x+40:
+            if self.player.y ==self.box.y:
+                self.player.y -= MOVEMENT_SPEED
+            elif self.player.y == self.box.y+40:
+                self.player.y += MOVEMENT_SPEED
+
+
+
+
+
+
+                
+
+      
+
+      
+
+
+            
 
         
 
