@@ -11,7 +11,12 @@ class Model:
         self.x = x
         self.y = y 
 
-
+    def hit_obj(self, obj, obj_bottom, obj_top, obj_left, obj_right):
+        
+        return (  self.y >= obj.y+obj_bottom  and 
+                  self.y <= obj.y+obj_top     and 
+                  self.x >= obj.x+obj_left    and 
+                  self.x<= obj.x+obj_right  )
 
 
 class Player(Model):
@@ -56,7 +61,26 @@ class Box(Model):
             self.y += MOVEMENT_SPEED 
         elif self.y >self.world.height-100:
             self.y -= MOVEMENT_SPEED 
-        
+
+class Ghost_LV1(Model):
+    def __init__(self, world, x, y):
+        super().__init__(world, x, y)
+
+    def update(self, delta):
+
+        if abs(self.x-self.world.player.x) >= 1:
+            
+            if self.x < self.world.player.x:
+                self.x += 1
+            elif self.x > self.world.player.x:
+                self.x -= 1
+
+        elif abs(self.y-self.world.player.y) >= 1:
+            if self.y < self.world.player.y:
+                self.y += 1
+            elif self.y > self.world.player.y:
+                self.y -= 1
+          
 
 
 class World:
@@ -66,6 +90,7 @@ class World:
         
         self.player = Player(self, 100,200)
         self.box = Box(self, 300,400)
+        self.ghost_lv1 = Ghost_LV1(self,50,50)
 
 
     def control(self, keys):
@@ -77,8 +102,12 @@ class World:
 
     def update(self, delta):
         self.player.update(delta)
+        self.ghost_lv1.update(delta)
 
-        if self.player.y >= self.box.y and self.player.y <= self.box.y+40 and self.player.x+20 >= self.box.x-40 and self.player.x-20 <= self.box.x+40:
+        #if self.player.y >= self.box.y and self.player.y <= self.box.y+40 and self.player.x >= self.box.x-60 and self.player.x <= self.box.x+60:
+
+        if self.player.hit_obj(self.box,0,40,-60,60):
+
             if self.player.x+20 == self.box.x-40:
                 self.player.x -= MOVEMENT_SPEED
             elif self.player.x-20 == self.box.x+40:
