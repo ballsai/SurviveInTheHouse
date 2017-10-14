@@ -104,18 +104,28 @@ class World:
         self.player.update(delta)
         self.ghost_lv1.update(delta)
 
-        #if self.player.y >= self.box.y and self.player.y <= self.box.y+40 and self.player.x >= self.box.x-60 and self.player.x <= self.box.x+60:
-
+        
         if self.player.hit_obj(self.box,0,40,-60,60):
 
-            if self.player.x+20 == self.box.x-40:
+            if self.player.x == self.box.x-60:
                 self.player.x -= MOVEMENT_SPEED
-            elif self.player.x-20 == self.box.x+40:
+            elif self.player.x == self.box.x+60:
                 self.player.x += MOVEMENT_SPEED
             elif self.player.y ==self.box.y:
                 self.player.y -= MOVEMENT_SPEED
             elif self.player.y == self.box.y+40:
                 self.player.y += MOVEMENT_SPEED
+
+        if self.ghost_lv1.hit_obj(self.box,0,40,-60,60):
+
+            if self.ghost_lv1.x == self.box.x-60:
+                self.ghost_lv1.x -= 1
+            elif self.ghost_lv1.x == self.box.x+60:
+                self.ghost_lv1.x += 1
+            elif self.ghost_lv1.y ==self.box.y:
+                self.ghost_lv1.y -= 1
+            elif self.ghost_lv1.y == self.box.y+40:
+                self.ghost_lv1.y += 1
 
 
 
