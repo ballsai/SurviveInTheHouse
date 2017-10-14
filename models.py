@@ -78,14 +78,12 @@ class World:
     def update(self, delta):
         self.player.update(delta)
 
-        if self.player.y >= self.box.y and self.player.y <= self.box.y+40:
+        if self.player.y >= self.box.y and self.player.y <= self.box.y+40 and self.player.x+20 >= self.box.x-40 and self.player.x-20 <= self.box.x+40:
             if self.player.x+20 == self.box.x-40:
                 self.player.x -= MOVEMENT_SPEED
             elif self.player.x-20 == self.box.x+40:
                 self.player.x += MOVEMENT_SPEED
-
-        if self.player.x+20 >= self.box.x-40 and self.player.x-20 <= self.box.x+40:
-            if self.player.y ==self.box.y:
+            elif self.player.y ==self.box.y:
                 self.player.y -= MOVEMENT_SPEED
             elif self.player.y == self.box.y+40:
                 self.player.y += MOVEMENT_SPEED
