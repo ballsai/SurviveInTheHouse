@@ -15,7 +15,6 @@ class ModelSprite(arcade.Sprite):
     def sync_with_model(self):
         if self.model:
             self.set_position(self.model.x, self.model.y)
-
  
     def draw(self):
         self.sync_with_model()
@@ -53,14 +52,10 @@ class SurviveWindow(arcade.Window):
         else:
             self.box_sprite.draw()
             self.player_sprite.draw()
-
-        if self.world.ghost_lv1.y >= self.world.box.y+40:
-            self.ghost_sprite.draw()
-            self.box_sprite.draw()
             
-        else:
-            self.box_sprite.draw()
-            self.ghost_sprite.draw()
+
+
+
 
         
 
