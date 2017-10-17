@@ -1,11 +1,12 @@
 import arcade
 import time
-from random import randint
+import random
 from pyglet.window import key
 
 PLAYER_MARGIN = 20
 BOX_MARGIN = 40
-MOVEMENT_SPEED = 5
+MOVEMENT_SPEED = 3
+DELAY = 2
 CHAR_SCALE = 2
 
 class Model:
@@ -247,20 +248,35 @@ class Ghost_LV1(Model):
 
       
 class World:
+
     def __init__(self, width, height):
         self.width = width
         self.height = height
         
+        self.total_time = 0.0
+        self.count =0
         
         self.player = Player()
         self.player.center_x = self.width//2
         self.player.center_y = self.height//2
-
-        self.ghost = Ghost()
-        self.ghost.center_x = randint(0,width)
-        self.ghost.center_y = randint(0,height)
-
-
+        self.all_ghost_list = arcade.SpriteList()
+        
+        if self.count < 10:
+            self.count += 1
+            self.ghost = Ghost()
+            self.ghost.center_x = random.randrange(20)
+            self.ghost.center_y = random.randrange(self.width)
+            self.all_ghost_list.append(self.ghost)
+            print(self.count)
+        else:
+            self.all_ghost_list.remove(self.ghost)
+        
+        if self.count>=15 and self.count <40:
+            self.ghost = Ghost()
+            self.ghost.center_x = random.randrange(20)
+            self.ghost.center_y = random.randrange(self.width)
+            self.all_ghost_list.append(self.ghost)
+        
         self.box = Box(self, 300,400)
 
 
@@ -284,29 +300,53 @@ class World:
         
         
     def update(self, delta):
+        self.total_time += delta
+
         self.player.update()
         self.ghost.update()
-
+        self.all_ghost_list.update()
+       
         
         if abs(self.ghost.center_x-self.player.center_x)  >= 10 :
             
             if self.ghost.center_x < self.player.center_x:
-                self.ghost.change_x = MOVEMENT_SPEED-4
+                self.ghost.change_x = MOVEMENT_SPEED-DELAY
                 self.ghost.change_y =0
             elif self.ghost.center_x >= self.player.center_x:
-                self.ghost.change_x = -MOVEMENT_SPEED+4
+                self.ghost.change_x = -MOVEMENT_SPEED+DELAY
                 self.ghost.change_y = 0
         elif abs(self.ghost.center_y-self.player.center_y) >=20: 
             
             if self.ghost.center_y < self.player.center_y:
-               self.ghost.change_y = MOVEMENT_SPEED-4
+               self.ghost.change_y = MOVEMENT_SPEED-DELAY
                self.ghost.change_x = 0
             elif self.ghost.center_y >= self.player.center_y:
-                self.ghost.change_y = -MOVEMENT_SPEED+4
+                self.ghost.change_y = -MOVEMENT_SPEED+DELAY
                 self.ghost.change_x = 0
         else:
             self.ghost.change_x = 0
             self.ghost.change_y = 0
+        
+
+        '''if abs(self.ghost2.center_x-self.player.center_x)  >= 10 :
+            
+            if self.ghost2.center_x < self.player.center_x:
+                self.ghost2.change_x = MOVEMENT_SPEED-DELAY
+                self.ghost2.change_y =0
+            elif self.ghost2.center_x >= self.player.center_x:
+                self.ghost2.change_x = -MOVEMENT_SPEED+DELAY
+                self.ghost2.change_y = 0
+        elif abs(self.ghost2.center_y-self.player.center_y) >=20: 
+            
+            if self.ghost2.center_y < self.player.center_y:
+               self.ghost2.change_y = MOVEMENT_SPEED-DELAY
+               self.ghost2.change_x = 0
+            elif self.ghost2.center_y >= self.player.center_y:
+                self.ghost2.change_y = -MOVEMENT_SPEED+DELAY
+                self.ghost2.change_x = 0
+        else:
+            self.ghost2.change_x = 0
+            self.ghost2.change_y = 0'''
         
       
         
