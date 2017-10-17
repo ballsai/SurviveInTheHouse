@@ -1,5 +1,6 @@
 import arcade
-from models import World,Player,Box,Ghost_LV1
+from random import randint
+from models import World,Player,Box,Ghost
 from pyglet.window import key
 
  
@@ -27,15 +28,31 @@ class SurviveWindow(arcade.Window):
         super().__init__(width, height)
   
         self.world = World(width, height)
+        self.box_sprite = ModelSprite("images/box.png",model=self.world.box)
         self.all_player_list = arcade.SpriteList()
         self.all_ghost_list = arcade.SpriteList()
         self.all_sprites_list = arcade.SpriteList()
        
+       
         self.player_sprite = self.world.player
-        self.ghost_sprite = self.world.ghost
-        self.box_sprite = ModelSprite("images/box.png",model=self.world.box)
         self.all_player_list.append(self.player_sprite)
-        self.all_ghost_list.append(self.ghost_sprite)
+        self.all_sprites_list.append(self.player_sprite)
+        
+        
+        for i in range(50):
+
+            # Create the coin instance
+            self.ghost_sprite = self.world.ghost
+
+            # Position the coin
+            '''self.world.ghost.center_x = randint(0,SCREEN_WIDTH)
+            self.ghost_ghost.center_y = randint(0,SCREEN_HEIGHT)'''
+
+            # Add the coin to the lists
+            
+            self.all_ghost_list.append(self.ghost_sprite)
+
+
 
         
         
@@ -57,14 +74,15 @@ class SurviveWindow(arcade.Window):
             self.box_sprite.draw()
         else:
             self.all_player_list.draw()
-        
+            
         
     
 
     def update(self,delta):
         self.world.update(delta)
         self.all_sprites_list.update()
-        self.all_ghost_list.append(self.ghost_sprite)
+        self.all_ghost_list.update()
+        
         
         
  
