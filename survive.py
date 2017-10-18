@@ -30,21 +30,7 @@ class SurviveWindow(arcade.Window):
         self.world = World(width, height)
         self.timer_text = None
         self.box_sprite = ModelSprite("images/box.png",model=self.world.box)
-        self.all_player_list = arcade.SpriteList()
-        self.all_ghost_list = arcade.SpriteList()
-        self.all_sprites_list = arcade.SpriteList()
-       
-       
-        self.player_sprite = self.world.player
-        self.all_player_list.append(self.player_sprite)
-        self.all_sprites_list.append(self.player_sprite)
-        
-
-
-
-
-        
-        
+      
         arcade.set_background_color(arcade.color.AMAZON)
 
     def on_key_press(self, key, modifiers): 
@@ -60,10 +46,10 @@ class SurviveWindow(arcade.Window):
         self.world.all_ghost_list.draw()
 
         if self.world.player.center_y >= self.world.box.y+40:
-            self.all_player_list.draw()
+            self.world.all_player_list.draw()
             self.box_sprite.draw()
         else:
-            self.all_player_list.draw()
+            self.world.all_player_list.draw()
 
         minutes = int(self.world.total_time) // 60
         seconds = int(self.world.total_time) % 60
@@ -73,17 +59,10 @@ class SurviveWindow(arcade.Window):
 
         # Output the timer text.
         arcade.render_text(self.timer_text, 700, 500)
-        
-    
 
     def update(self,delta):
         self.world.update(delta)
-        self.all_sprites_list.update()
-        
-        
-        
-        
- 
+
 if __name__ == '__main__':
     window = SurviveWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
     keys = key.KeyStateHandler()
