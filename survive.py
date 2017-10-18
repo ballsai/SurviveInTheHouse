@@ -28,10 +28,11 @@ class SurviveWindow(arcade.Window):
         super().__init__(width, height)
   
         self.world = World(width, height)
+
         self.timer_text = None
         self.box_sprite = ModelSprite("images/box.png",model=self.world.box)
       
-        arcade.set_background_color(arcade.color.AMAZON)
+        
 
     def on_key_press(self, key, modifiers): 
        self.world.on_key_press(key,modifiers)
@@ -58,7 +59,7 @@ class SurviveWindow(arcade.Window):
             self.timer_text = arcade.create_text(output, arcade.color.BLACK, 10)
 
         # Output the timer text.
-        arcade.render_text(self.timer_text, 700, 500)
+        arcade.render_text(self.timer_text, 700, 560)
 
     def update(self,delta):
         self.world.update(delta)

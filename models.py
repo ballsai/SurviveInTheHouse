@@ -6,7 +6,8 @@ from pyglet.window import key
 PLAYER_MARGIN = 20
 BOX_MARGIN = 40
 MOVEMENT_SPEED = 5
-CHAR_SCALE = 2
+CHAR_SCALE = 1.5
+COUNT_GHOST = 10
 
 class Model:
     def __init__(self, world, x, y):
@@ -79,6 +80,23 @@ class Player(arcade.Sprite):
         self.index = 0
         self.texture = self.texture_down[self.index]
     
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.W:
+            self.change_y = MOVEMENT_SPEED
+        elif key == arcade.key.S:
+            self.change_y = -MOVEMENT_SPEED
+        elif key == arcade.key.A:
+            self.change_x = -MOVEMENT_SPEED
+        elif key == arcade.key.D:
+            self.change_x = MOVEMENT_SPEED
+
+        
+    def on_key_release(self, key, modifiers):
+       
+        if key == arcade.key.W or key == arcade.key.S:
+            self.change_y = 0
+        elif key == arcade.key.A or key == arcade.key.D:
+            self.change_x = 0
 
     def update(self):
         self.center_x += self.change_x
@@ -191,6 +209,7 @@ class Ghost(arcade.Sprite):
             self.index += 1
             if self.index >= len(self.texture_left):
                 self.index = 0
+
             self.texture = self.texture_left[self.index]
             
 
@@ -221,6 +240,7 @@ class Ghost(arcade.Sprite):
                 self.change_y =0
             elif self.center_x >= self.world.player.center_x:
                 self.change_x = -MOVEMENT_SPEED+self.delay
+        
                 self.change_y = 0
         
         elif abs(self.center_y-self.world.player.center_y) >=20: 
@@ -247,7 +267,7 @@ class World:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-       
+        arcade.set_background_color(arcade.color.AMAZON)
         self.total_time = 0.0
         self.all_player_list = arcade.SpriteList()
         self.all_ghost_list = arcade.SpriteList()
@@ -255,32 +275,25 @@ class World:
         self.player = Player(self,width//2,height//2)
         self.all_player_list.append(self.player)
         
-        for i in range(3):
-            self.ghost = Ghost(self,random.randrange(100)+i*(100),random.randrange(100)+i*(100),random.randrange(4))
+        for i in range(COUNT_GHOST):
+            self.ghost = Ghost(self,random.randrange(100)+i*(100),random.randrange(100)+i*(100),random.randrange(1,4))
             self.all_ghost_list.append(self.ghost)
-       
-        
         
         self.box = Box(self, 300,400)
-
+        
 
     def on_key_press(self, key, modifiers):
-        if key == arcade.key.UP:
-            self.player.change_y = MOVEMENT_SPEED
-        elif key == arcade.key.DOWN:
-            self.player.change_y = -MOVEMENT_SPEED
-        elif key == arcade.key.LEFT:
-            self.player.change_x = -MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT:
-            self.player.change_x = MOVEMENT_SPEED
-
-        
+        self.player.on_key_press(key, modifiers)
+        if key == arcade.key.SPACE:
+            for i in range(len(self.all_ghost_list)):
+               self.all_ghost_list[i-(COUNT_GHOST-1)].kill()
+               print(i)
+               
+                    
+                
+                
     def on_key_release(self, key, modifiers):
-       
-        if key == arcade.key.UP or key == arcade.key.DOWN:
-            self.player.change_y = 0
-        elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
-            self.player.change_x = 0
+        self.player.on_key_release(key, modifiers)
         
         
     def update(self, delta):
@@ -288,49 +301,6 @@ class World:
 
         self.all_player_list.update()
         self.all_ghost_list.update()
-       
-        
+
+
     
-        
-      
-        
-
-
-                
-             
-                
-           
-
-        
-        
-        
-
-
-                
-
-      
-
-      
-
-
-            
-
-        
-
-
-       
-
-
-
-      
-        
-
-        
-
-
-
-   
-           
-  
-    
-        
