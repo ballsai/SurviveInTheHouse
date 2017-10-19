@@ -28,7 +28,7 @@ class SurviveWindow(arcade.Window):
         super().__init__(width, height)
   
         self.world = World(width, height)
-
+        arcade.set_background_color(arcade.color.AMAZON)
         self.timer_text = None
         self.box_sprite = ModelSprite("images/box.png",model=self.world.box)
       
