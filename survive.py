@@ -32,7 +32,7 @@ class SurviveWindow(arcade.Window):
         self.timer_text = None
         self.box_sprite = ModelSprite("images/box.png",model=self.world.box)
       
-        
+      
 
     def on_key_press(self, key, modifiers): 
        self.world.on_key_press(key,modifiers)
@@ -66,8 +66,5 @@ class SurviveWindow(arcade.Window):
 
 if __name__ == '__main__':
     window = SurviveWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
-    keys = key.KeyStateHandler()
-    window.push_handlers(keys)
     
-
     arcade.run()

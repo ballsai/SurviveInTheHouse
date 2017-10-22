@@ -141,15 +141,15 @@ class Player(arcade.Sprite):
 
 class Ghost(arcade.Sprite):
 
-    def __init__(self,world,x,y,delay):
+    def __init__(self,world,x,y):
         super().__init__()
         self.world = world
         self.x = x
         self.y = y
-        self.delay = delay
         self.center_x = self.x
         self.center_y = self.y
-
+        self.time = 0
+        
         self.texture_left = []
         self.texture_left.append(arcade.load_texture("images/player/char_w01.png",scale =CHAR_SCALE))
         self.texture_left.append(arcade.load_texture("images/player/char_w02.png",scale =CHAR_SCALE))
@@ -229,28 +229,75 @@ class Ghost(arcade.Sprite):
             self.texture = self.texture_up[self.index]
         ########################################################################
 
-        # Ghost move forward to player##########################################
-        if abs(self.center_x-self.world.player.center_x)  >= 10 :
-            
-            if self.center_x < self.world.player.center_x:
-                self.change_x = MOVEMENT_SPEED-self.delay
-                self.change_y =0
-            elif self.center_x >= self.world.player.center_x:
-                self.change_x = -MOVEMENT_SPEED+self.delay
-                self.change_y = 0
+        # Ghost can move freely on screen ######################################
         
-        elif abs(self.center_y-self.world.player.center_y) >=20: 
-            
-            if self.center_y < self.world.player.center_y:
-               self.change_y = MOVEMENT_SPEED-self.delay
-               self.change_x = 0
-            elif self.center_y >= self.world.player.center_y:
-                self.change_y = -MOVEMENT_SPEED+self.delay
-                self.change_x = 0
-        else:
-            self.change_x = 0
-            self.change_y = 0
+
+      
         ########################################################################
+
+        # Ghost follow player ##################################################
+        if self.time%100 == 0:
+            self.time+=1
+            self.dir = random.randint(1,4)
+        else:
+            self.time+=1
+        
+        if abs(self.center_x-self.world.player.center_x) <=200 and  abs(self.center_y-self.world.player.center_y) <=150 :
+            if abs(self.center_x-self.world.player.center_x)  >= 10 :
+                
+                if self.center_x < self.world.player.center_x:
+                    self.change_x = 3
+                    self.change_y =0
+                elif self.center_x >= self.world.player.center_x:
+                    self.change_x = -3
+                    self.change_y = 0
+            
+            elif abs(self.center_y-self.world.player.center_y) >=20: 
+                
+                if self.center_y < self.world.player.center_y:
+                   self.change_y = 3
+                   self.change_x = 0
+                elif self.center_y >= self.world.player.center_y:
+                    self.change_y = -3
+                    self.change_x = 0
+            else:
+                self.change_x = 0
+                self.change_y = 0
+        #########################################################################        
+       
+        elif (self.left >=0 and self.right<= 800-1 and self.bottom >= 0 and self.top <= 600-1):
+            
+            if self.dir == 1 :
+                self.change_y = 0
+                self.change_x = 3
+                            
+            if self.dir == 2 :
+                self.change_y = 0
+                self.change_x = -3
+                            
+            if self.dir == 3 :
+                self.change_x = 0
+                self.change_y = 3
+                            
+            if self.dir == 4 :
+                self.change_x = 0
+                self.change_y = -3
+        else:
+            if self.left <0:
+                self.change_x = 3
+                self.time = 0
+            elif self.right > 800-1:
+                self.change_x = -3
+                self.time = 0
+            elif self.bottom < 0:
+                self.change_y = 3
+                self.time = 0
+            elif self.top> 600-1:
+                self.change_y = -3
+                self.time = 0
+        
+       
+       ########################################################################
 
 class Box(Model):
     def __init__(self, world, x, y):
@@ -267,7 +314,7 @@ class World:
         self.total_time = 0
         self.release_ghost_time = 0
         self.count_ghost = 0
-        self.k = 0
+        
         self.all_player_list = arcade.SpriteList()
         self.all_ghost_list = arcade.SpriteList()
         self.box = Box(self, 300,400)
@@ -276,8 +323,6 @@ class World:
         self.all_player_list.append(self.player)
     
 
-            
-            
     def on_key_release(self, key, modifiers):
         self.player.on_key_release(key, modifiers)
 
@@ -285,16 +330,17 @@ class World:
     def update(self, delta):
         self.total_time += delta
         
-        #set Time to release ghost #############################################
-        if self.release_ghost_time%200 == 0:
+        #set time to release ghost #############################################
+        if self.release_ghost_time%300 == 0:
             self.release_ghost_time += 1
-            self.count_ghost +=1
-            self.ghost = Ghost(self,0,self.width//2,3)
+            self.count_ghost += 1    
+            self.ghost = Ghost(self,0,random.randint(225,275))
+        
             self.all_ghost_list.append(self.ghost)
         else:
             self.release_ghost_time += 1
         ########################################################################
-
+    
         self.all_player_list.update()
         self.all_ghost_list.update()
 
