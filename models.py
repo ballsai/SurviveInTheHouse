@@ -1,25 +1,24 @@
 import arcade
 import time
 import random
-
-
-MOVEMENT_SPEED = 5
+MOVEMENT_SPEED = 3
 CHAR_SCALE = 1
 
-class Model:
+class Model():
     def __init__(self, world, x, y):
         self.world = world
         self.x = x
         self.y = y 
 
-    def hit_obj(self, obj, obj_bottom, obj_top, obj_left, obj_right):
-        
-        return (  self.center_y >= obj.y+obj_bottom  and 
-                  self.center_y <= obj.y+obj_top     and 
-                  self.center_x >= obj.x+obj_left    and 
-                  self.center_x<= obj.x+obj_right  )
-
-
+class Object(arcade.Sprite):
+    def __init__(self,world,x,y):
+        super().__init__()
+        self.world = world
+        self.x = x
+        self.y = y
+        self.center_x = self.x
+        self.center_y = self.y
+ 
 class Player(arcade.Sprite):
 
     def __init__(self,world,x,y):
@@ -29,7 +28,7 @@ class Player(arcade.Sprite):
         self.y = y
         self.center_x = self.x
         self.center_y = self.y
-
+        
         self.texture_left = []
         self.texture_left.append(arcade.load_texture("images/player/char_w01.png",scale =CHAR_SCALE))
         self.texture_left.append(arcade.load_texture("images/player/char_w02.png",scale =CHAR_SCALE))
@@ -77,25 +76,50 @@ class Player(arcade.Sprite):
         
         self.index = 0
         self.texture = self.texture_down[self.index]
-    
+    #################################################################
     def on_key_press(self, key, modifiers):
         if key == arcade.key.UP:
             self.change_y = MOVEMENT_SPEED
-        elif key == arcade.key.DOWN:
+            self.change_x = 0
+        if key == arcade.key.DOWN:
             self.change_y = -MOVEMENT_SPEED
-        elif key == arcade.key.LEFT:
+            self.change_x = 0
+        if key == arcade.key.LEFT:
             self.change_x = -MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT:
+            self.change_y = 0
+        if key == arcade.key.RIGHT:
             self.change_x = MOVEMENT_SPEED
-
-        
+            self.change_y = 0
     def on_key_release(self, key, modifiers):
-       
         if key == arcade.key.UP or key == arcade.key.DOWN:
             self.change_y = 0
         elif key == arcade.key.LEFT or key == arcade.key.RIGHT:
             self.change_x = 0
+    #################################################################
+    def hit_wall(self,wall,top_height,bottom_height,left_width,right_width):
+        if ( self.left > wall.left-left_width and
+             self.right < wall.right+right_width ):
 
+            if (self.top > wall.bottom-bottom_height-1 and 
+                self.top < wall.top ):
+                self.top = wall.bottom-bottom_height-1
+
+            if (self.bottom <wall.top+top_height+1 and
+                self.top > wall.bottom):
+                self.bottom = wall.top+top_height+1
+
+        if (self.bottom < wall.top+top_height and 
+            self.top > wall.bottom):
+
+            if (self.left > wall.left-left_width-5 and
+                self.left < wall.right):
+                self.left = wall.right-left_width-5
+            
+            if (self.right < wall.right+right_width+5 and
+                self.right > wall.left):
+                self.right = wall.right+right_width+5
+
+    ##################################################################
     def update(self):
         self.center_x += self.change_x
         self.center_y += self.change_y
@@ -107,21 +131,18 @@ class Player(arcade.Sprite):
                 self.index = 0
             self.texture = self.texture_left[self.index]
             
-
         elif self.change_x > 0:
             self.index += 1
             if self.index >= len(self.texture_right):
                 self.index = 0
             self.texture = self.texture_right[self.index]
-            
-
+        
         elif self.change_y <0:
             self.index += 1
             if self.index >= len(self.texture_down):
                 self.index = 0
             self.texture = self.texture_down[self.index]
             
-       
         elif self.change_y >0:
             self.index += 1
             if self.index >= len(self.texture_up):
@@ -129,16 +150,41 @@ class Player(arcade.Sprite):
             self.texture = self.texture_up[self.index]
             
         ########################################################################
+        self.hit_wall(wall=self.world.wall_1,top_height=44 ,
+                        bottom_height=5,left_width=120,right_width=135)
+        self.hit_wall(wall=self.world.wall_2,top_height=44 ,
+                        bottom_height=5,left_width=60,right_width=60)
+        self.hit_wall(wall=self.world.wall_3,top_height=44 ,
+                        bottom_height=5,left_width=105,right_width=108)
+        self.hit_wall(wall=self.world.wall_4,top_height=40 ,
+                        bottom_height=5,left_width=90,right_width=62.5)
+        self.hit_wall(wall=self.world.wall_5,top_height=44 ,
+                        bottom_height=5,left_width=175,right_width=185)
+        self.hit_wall(wall=self.world.wall_6,top_height=44 ,
+                        bottom_height=5,left_width=185,right_width=175)
+        self.hit_wall(wall=self.world.wall_7,top_height=70 ,
+                        bottom_height=5,left_width=35,right_width=35)
+        self.hit_wall(wall=self.world.wall_8,top_height=67.5 ,         
+                        bottom_height=15,left_width=35,right_width=35)
+        self.hit_wall(wall=self.world.wall_9,top_height=70,
+                        bottom_height=5,left_width=35,right_width=35)
+        self.hit_wall(wall=self.world.wall_10,top_height=67.5 ,
+                        bottom_height=15,left_width=35,right_width=35)
+
+        ########################################################################
         if self.left < 0:
-            self.left = 0
-        elif self.right > 800 - 1:
-            self.right = 800 - 1
-
-        if self.bottom < 0:
-            self.bottom = 0
-        elif self.top > 600 - 1:
-            self.top = 600 - 1
-
+            self.left = 1
+                   
+        if self.right > self.world.width-1:
+            self.right = self.world.width-1
+                   
+        if self.bottom <0:
+            self.bottom = 1
+                    
+        if self.top > self.world.height -1:
+            self.top = self.world.height -1 
+                   
+        ########################################################################
 class Ghost(arcade.Sprite):
 
     def __init__(self,world,x,y):
@@ -148,52 +194,52 @@ class Ghost(arcade.Sprite):
         self.y = y
         self.center_x = self.x
         self.center_y = self.y
-        self.time = 0
+        self.change_dir_time = 0
         
         self.texture_left = []
-        self.texture_left.append(arcade.load_texture("images/player/char_w01.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w02.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w03.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w04.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w05.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w06.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w07.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w08.png",scale =CHAR_SCALE))
-        self.texture_left.append(arcade.load_texture("images/player/char_w09.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w01.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w02.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w03.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w04.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w05.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w06.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w07.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w08.png",scale =CHAR_SCALE))
+        self.texture_left.append(arcade.load_texture("images/characters/ghost_w09.png",scale =CHAR_SCALE))
 
 
         self.texture_right = []
-        self.texture_right.append(arcade.load_texture("images/player/char_e01.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e02.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e03.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e04.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e05.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e06.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e07.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e08.png",scale =CHAR_SCALE))
-        self.texture_right.append(arcade.load_texture("images/player/char_e09.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e01.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e02.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e03.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e04.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e05.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e06.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e07.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e08.png",scale =CHAR_SCALE))
+        self.texture_right.append(arcade.load_texture("images/characters/ghost_e09.png",scale =CHAR_SCALE))
 
         self.texture_down = []
-        self.texture_down.append(arcade.load_texture("images/player/char_s01.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s02.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s03.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s04.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s05.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s06.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s07.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s08.png",scale =CHAR_SCALE))
-        self.texture_down.append(arcade.load_texture("images/player/char_s09.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s01.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s02.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s03.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s04.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s05.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s06.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s07.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s08.png",scale =CHAR_SCALE))
+        self.texture_down.append(arcade.load_texture("images/characters/ghost_s09.png",scale =CHAR_SCALE))
 
         self.texture_up = []
-        self.texture_up.append(arcade.load_texture("images/player/char_n01.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n02.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n03.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n04.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n05.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n06.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n07.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n08.png",scale =CHAR_SCALE))
-        self.texture_up.append(arcade.load_texture("images/player/char_n09.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n01.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n02.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n03.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n04.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n05.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n06.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n07.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n08.png",scale =CHAR_SCALE))
+        self.texture_up.append(arcade.load_texture("images/characters/ghost_n09.png",scale =CHAR_SCALE))
         
         self.index = 0
         self.texture = self.texture_down[self.index]
@@ -229,83 +275,71 @@ class Ghost(arcade.Sprite):
             self.texture = self.texture_up[self.index]
         ########################################################################
 
-        # Ghost can move freely on screen ######################################
-        
-
-      
-        ########################################################################
-
         # Ghost follow player ##################################################
-        if self.time%100 == 0:
-            self.time+=1
+        if self.change_dir_time%100 == 0:
+            self.change_dir_time+=1
             self.dir = random.randint(1,4)
         else:
-            self.time+=1
+            self.change_dir_time+=1
         
-        if abs(self.center_x-self.world.player.center_x) <=200 and  abs(self.center_y-self.world.player.center_y) <=150 :
+        if (abs(self.center_x-self.world.player.center_x) <=200 and  
+            abs(self.center_y-self.world.player.center_y) <=150 and 
+            self.world.player.alpha!=0):
             if abs(self.center_x-self.world.player.center_x)  >= 10 :
                 
                 if self.center_x < self.world.player.center_x:
-                    self.change_x = 3
+                    self.change_x = 2
                     self.change_y =0
                 elif self.center_x >= self.world.player.center_x:
-                    self.change_x = -3
+                    self.change_x = -2
                     self.change_y = 0
             
             elif abs(self.center_y-self.world.player.center_y) >=20: 
                 
                 if self.center_y < self.world.player.center_y:
-                   self.change_y = 3
+                   self.change_y = 2
                    self.change_x = 0
                 elif self.center_y >= self.world.player.center_y:
-                    self.change_y = -3
+                    self.change_y = -2
                     self.change_x = 0
             else:
                 self.change_x = 0
                 self.change_y = 0
-        #########################################################################        
-       
-        elif (self.left >=0 and self.right<= 800-1 and self.bottom >= 0 and self.top <= 600-1):
-            
+        #########################################################################    
+        else:
+
             if self.dir == 1 :
                 self.change_y = 0
-                self.change_x = 3
-                            
+                self.change_x = 2
+                                
             if self.dir == 2 :
                 self.change_y = 0
-                self.change_x = -3
-                            
+                self.change_x = -2
+                                
             if self.dir == 3 :
                 self.change_x = 0
-                self.change_y = 3
-                            
+                self.change_y = 2
+                                
             if self.dir == 4 :
                 self.change_x = 0
-                self.change_y = -3
-        else:
-            if self.left <0:
-                self.change_x = 3
-                self.time = 0
-            elif self.right > 800-1:
-                self.change_x = -3
-                self.time = 0
-            elif self.bottom < 0:
-                self.change_y = 3
-                self.time = 0
-            elif self.top> 600-1:
-                self.change_y = -3
-                self.time = 0
+                self.change_y = -2
+        #**************************************************************
+            if self.left < 0:
+                self.left = 1
+                self.change_dir_time = 0
+            if self.right > self.world.width-2:
+                self.right = self.world.width-2
+                self.change_dir_time = 0
+            if self.bottom <0:
+                self.bottom = 1
+                self.change_dir_time = 0
+            if self.top > self.world.height -1:
+                self.top = self.world.height -1 
+                self.change_dir_time = 0         
+ ########################################################################
         
-       
-       ########################################################################
-
-class Box(Model):
-    def __init__(self, world, x, y):
-        super().__init__(world, x, y)
- 
-    def update(self, delta):
-        pass
-      
+ ########################################################################
+   
 class World:
 
     def __init__(self, width, height):
@@ -313,44 +347,77 @@ class World:
         self.height = height
         self.total_time = 0
         self.release_ghost_time = 0
+        self.release_box_time = 0
         self.count_ghost = 0
         
-        self.all_player_list = arcade.SpriteList()
-        self.all_ghost_list = arcade.SpriteList()
-        self.box = Box(self, 300,400)
-
+        self.player_list = arcade.SpriteList()
+        self.ghost_list = arcade.SpriteList()
+        self.wall_list = arcade.SpriteList()
+        self.object_list = arcade.SpriteList()
+        
         self.player = Player(self,width//2,height//2)
-        self.all_player_list.append(self.player)
-    
+        self.player_list.append(self.player)
 
+        self.wall_1 = Object(self, 218//2,228)
+        self.wall_2  = Object(self, 317.5,228)
+        self.wall_3  = Object(self, 528,228)
+        self.wall_4  = Object(self, 738,232)
+        self.wall_5  = Object(self, 350//2,563)
+        self.wall_6  = Object(self, 625,563)
+        self.wall_7 = Object(self,345,326)
+        self.wall_8 = Object(self,345,532.5)
+        self.wall_9 = Object(self,345+110,326)
+        self.wall_10 = Object(self,345+110,532.5)
+        self.box = Object(self,100,100)
+    
     def on_key_release(self, key, modifiers):
         self.player.on_key_release(key, modifiers)
+        if key == arcade.key.ENTER:
+            self.player.alpha = 1
 
     
     def update(self, delta):
         self.total_time += delta
         
         #set time to release ghost #############################################
-        if self.release_ghost_time%300 == 0:
+        if self.release_ghost_time%1000 == 0:
             self.release_ghost_time += 1
             self.count_ghost += 1    
             self.ghost = Ghost(self,0,random.randint(225,275))
         
-            self.all_ghost_list.append(self.ghost)
+            self.ghost_list.append(self.ghost)
         else:
             self.release_ghost_time += 1
         ########################################################################
-    
-        self.all_player_list.update()
-        self.all_ghost_list.update()
+        
+        if self.release_box_time%100 == 0:
+            self.release_box_time +=1
+            self.box = arcade.Sprite("images/box.png")
+            self.box.center_x = random.randint(0,self.width)
+            self.box.center_y = random.randint(0,self.height)
+            self.object_list.append(self.box)
 
+        else:
+            self.release_box_time += 1    
+        
+        ########################################################################
+        self.player_list.update()
+        self.ghost_list.update()
+        self.object_list.update()
+
+       
     def on_key_press(self, key, modifiers):
         self.player.on_key_press(key, modifiers)
         if key == arcade.key.SPACE:
             for i in range(self.count_ghost):
-                self.all_ghost_list[i-self.count_ghost].kill()
+                self.ghost_list[i-self.count_ghost].kill()
             self.count_ghost = 0
+        if key == arcade.key.ENTER:
+            self.player.alpha = 0
 
+
+        
+        
                 
                 
 
