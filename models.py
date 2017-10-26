@@ -243,7 +243,33 @@ class Ghost(arcade.Sprite):
         
         self.index = 0
         self.texture = self.texture_down[self.index]
-    
+
+    def hit_wall(self,wall,top_height,bottom_height,left_width,right_width):
+        if ( self.left > wall.left-left_width and
+             self.right < wall.right+right_width ):
+
+            if (self.top > wall.bottom-bottom_height-1 and 
+                self.top < wall.top ):
+                self.top = wall.bottom-bottom_height-1
+                self.change_dir_time = 0
+
+            if (self.bottom <wall.top+top_height+1 and
+                self.top > wall.bottom):
+                self.bottom = wall.top+top_height+1
+                self.change_dir_time = 0
+
+        if (self.bottom < wall.top+top_height and 
+            self.top > wall.bottom):
+
+            if (self.left > wall.left-left_width-5 and
+                self.left < wall.right):
+                self.left = wall.right-left_width-5
+                self.change_dir_time = 0
+            
+            if (self.right < wall.right+right_width+5 and
+                self.right > wall.left):
+                self.right = wall.right+right_width+5
+                self.change_dir_time = 0
 
     def update(self):
         self.center_x += self.change_x
@@ -282,8 +308,8 @@ class Ghost(arcade.Sprite):
         else:
             self.change_dir_time+=1
         
-        if (abs(self.center_x-self.world.player.center_x) <=200 and  
-            abs(self.center_y-self.world.player.center_y) <=150 and 
+        if (abs(self.center_x-self.world.player.center_x) <=100 and  
+            abs(self.center_y-self.world.player.center_y) <=75 and 
             self.world.player.alpha!=0):
             if abs(self.center_x-self.world.player.center_x)  >= 10 :
                 
@@ -324,18 +350,38 @@ class Ghost(arcade.Sprite):
                 self.change_x = 0
                 self.change_y = -2
         #**************************************************************
-            if self.left < 0:
-                self.left = 1
-                self.change_dir_time = 0
-            if self.right > self.world.width-2:
-                self.right = self.world.width-2
-                self.change_dir_time = 0
-            if self.bottom <0:
-                self.bottom = 1
-                self.change_dir_time = 0
-            if self.top > self.world.height -1:
-                self.top = self.world.height -1 
-                self.change_dir_time = 0         
+        self.hit_wall(wall=self.world.wall_1,top_height=44 ,
+                        bottom_height=5,left_width=120,right_width=135)
+        self.hit_wall(wall=self.world.wall_2,top_height=44 ,
+                        bottom_height=5,left_width=60,right_width=60)
+        self.hit_wall(wall=self.world.wall_3,top_height=44 ,
+                        bottom_height=5,left_width=105,right_width=108)
+        self.hit_wall(wall=self.world.wall_4,top_height=40 ,
+                        bottom_height=5,left_width=90,right_width=62.5)
+        self.hit_wall(wall=self.world.wall_5,top_height=44 ,
+                        bottom_height=5,left_width=175,right_width=185)
+        self.hit_wall(wall=self.world.wall_6,top_height=44 ,
+                        bottom_height=5,left_width=185,right_width=175)
+        self.hit_wall(wall=self.world.wall_7,top_height=70 ,
+                        bottom_height=5,left_width=35,right_width=35)
+        self.hit_wall(wall=self.world.wall_8,top_height=67.5 ,         
+                        bottom_height=15,left_width=35,right_width=35)
+        self.hit_wall(wall=self.world.wall_9,top_height=70,
+                        bottom_height=5,left_width=35,right_width=35)
+        self.hit_wall(wall=self.world.wall_10,top_height=67.5 ,
+                        bottom_height=15,left_width=35,right_width=35)
+        if self.left < 0:
+            self.left = 1
+            self.change_dir_time = 0
+        if self.right > self.world.width-1:
+            self.right = self.world.width-1
+            self.change_dir_time = 0      
+        if self.bottom <0:
+            self.bottom = 1
+            self.change_dir_time = 0        
+        if self.top > self.world.height -1:
+            self.top = self.world.height -1 
+            self.change_dir_time = 0 
  ########################################################################
         
  ########################################################################
@@ -368,7 +414,7 @@ class World:
         self.wall_8 = Object(self,345,532.5)
         self.wall_9 = Object(self,345+110,326)
         self.wall_10 = Object(self,345+110,532.5)
-        self.box = Object(self,100,100)
+       
     
     def on_key_release(self, key, modifiers):
         self.player.on_key_release(key, modifiers)
@@ -380,26 +426,19 @@ class World:
         self.total_time += delta
         
         #set time to release ghost #############################################
-        if self.release_ghost_time%1000 == 0:
+        if self.release_ghost_time%1500 == 0:
             self.release_ghost_time += 1
-            self.count_ghost += 1    
-            self.ghost = Ghost(self,0,random.randint(225,275))
+            self.count_ghost += 3   
+            self.ghost_w = Ghost(self,0,random.randint(0,225))
+            self.ghost_n = Ghost(self,random.randint(360,440),self.height)
+            self.ghost_e = Ghost(self,self.width,random.randint(0,225))
         
-            self.ghost_list.append(self.ghost)
+            self.ghost_list.append(self.ghost_w)
+            self.ghost_list.append(self.ghost_n)
+            self.ghost_list.append(self.ghost_e)
         else:
             self.release_ghost_time += 1
         ########################################################################
-        
-        if self.release_box_time%100 == 0:
-            self.release_box_time +=1
-            self.box = arcade.Sprite("images/box.png")
-            self.box.center_x = random.randint(0,self.width)
-            self.box.center_y = random.randint(0,self.height)
-            self.object_list.append(self.box)
-
-        else:
-            self.release_box_time += 1    
-        
         ########################################################################
         self.player_list.update()
         self.ghost_list.update()

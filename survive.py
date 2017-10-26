@@ -38,10 +38,8 @@ class SurviveWindow(arcade.Window):
         self.wall_7 = ModelSprite("images/wall_09.png",model=self.world.wall_7)
         self.wall_8 = ModelSprite("images/wall_10.png",model=self.world.wall_8)
         self.wall_9 = ModelSprite("images/wall_09.png",model=self.world.wall_9)
-        
         self.wall_10 = ModelSprite("images/wall_10.png",model=self.world.wall_10)
-        self.box = ModelSprite("images/box.png",model=self.world.box)
-
+      
         
 
     def on_key_press(self, key, modifiers): 
@@ -57,7 +55,6 @@ class SurviveWindow(arcade.Window):
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
                                       SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
        
-        self.box.draw()
         self.wall_1.draw()
         self.wall_7.draw()
         self.wall_2.draw()
@@ -68,7 +65,7 @@ class SurviveWindow(arcade.Window):
         self.wall_6.draw()
         self.wall_8.draw()
         self.wall_10.draw()
-        #self.world.ghost_list.draw()
+        self.world.ghost_list.draw()
         self.world.player_list.draw()
        
         minutes = int(self.world.total_time) // 60
