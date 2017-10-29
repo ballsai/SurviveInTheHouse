@@ -308,8 +308,8 @@ class Ghost(arcade.Sprite):
         else:
             self.change_dir_time+=1
         
-        if (abs(self.center_x-self.world.player.center_x) <=100 and  
-            abs(self.center_y-self.world.player.center_y) <=75 and 
+        if (abs(self.center_x-self.world.player.center_x) <=200 and  
+            abs(self.center_y-self.world.player.center_y) <=150 and 
             self.world.player.alpha!=0):
             if abs(self.center_x-self.world.player.center_x)  >= 10 :
                 
@@ -320,7 +320,7 @@ class Ghost(arcade.Sprite):
                     self.change_x = -4
                     self.change_y = 0
             
-            elif abs(self.center_y-self.world.player.center_y) >=20: 
+            elif abs(self.center_y-self.world.player.center_y) >=10: 
                 
                 if self.center_y < self.world.player.center_y:
                    self.change_y = 4
@@ -393,12 +393,12 @@ class World:
         self.height = height
         self.total_time = 0
         self.release_ghost_time = 0
-        self.release_bomb_time = 0
-        self.release_food_time = 0
+        self.release_bomb_time = 1
+        self.release_food_time = 1
         self.count_ghost = 0
         self.start_game = True
         self.game_over = False
-        self.count_down = 100
+        self.count_down = 300
         self.energy = 100.0
         self.score = 0
         
@@ -452,7 +452,7 @@ class World:
                 else:
                     self.release_ghost_time += 1
                 ########################################################################
-                if self.release_bomb_time%100 == 0:
+                if self.release_bomb_time%400 == 0:
                     self.release_bomb_time += 1
 
                     bomb = arcade.Sprite("images/bomb.png",0.8)
@@ -463,14 +463,15 @@ class World:
                 else:
                     self.release_bomb_time +=1
 
-                if len(self.item_list) != 0:
-                    if self.count_down >0 :
-                        self.count_down -=1 
-                    else: 
-                        self.bomb_list[0].kill()
+                    if len(self.item_list) != 0:
+                        if self.count_down >0 :
+                            self.count_down -=1 
+                        else: 
+                            self.bomb_list[0].kill()
+                            self.count_down = 300
                            
                     #########################################################################
-                if self.release_food_time%100 == 0:
+                if self.release_food_time%400 == 0:
                     self.release_food_time += 1
 
                     apple = arcade.Sprite("images/apple.png",0.8)
@@ -480,12 +481,12 @@ class World:
                     self.food_list.append(apple)
                 else:
                     self.release_food_time +=1    
-                
-                    '''if len(self.food_list) != 0:
+                    if len(self.food_list) != 0:
                         if self.count_down >0 :
                             self.count_down -=1 
                         else: 
-                            self.apple_list[0].kill()'''
+                            self.apple_list[0].kill()
+                            self.count_down = 300
                             
                     #########################################################################    
                     ##########################################################################
@@ -493,13 +494,15 @@ class World:
                 if len(check_collision) > 0:
                             
                     for ghost in check_collision:
-                        ghost.kill()
-                        if self.energy > 0.00:        
-                            self.energy -= 10.00
+                        if (abs(self.player.center_x-ghost.center_x) <10 and
+                            abs(self.player.center_y-ghost.center_y) <10):
+                            ghost.kill()
+                            if self.energy > 0.00:        
+                                self.energy -= 10.00
 
-                        elif self.energy <0.00:
-                            self.energy = 0.00
-                            self.game_over = True
+                            elif self.energy <0.00:
+                                self.energy = 0.00
+                                self.game_over = True
                                
                 elif self.player.change_x !=0 or self.player.change_y !=0:
                     if self.energy > 0.00:
