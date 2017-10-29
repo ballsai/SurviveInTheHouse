@@ -28,6 +28,8 @@ class SurviveWindow(arcade.Window):
         arcade.set_background_color(arcade.color.DARK_SLATE_GRAY)
         self.timer_text = None
         self.background = arcade.load_texture("images/background.png")
+        self.score_text = None
+        self.energy_text = None
         
         self.wall_1 = ModelSprite("images/wall_01.png",model=self.world.wall_1)
         self.wall_2 = ModelSprite("images/wall_02.png",model=self.world.wall_2)
@@ -65,17 +67,34 @@ class SurviveWindow(arcade.Window):
         self.wall_6.draw()
         self.wall_8.draw()
         self.wall_10.draw()
+        
         self.world.ghost_list.draw()
         self.world.player_list.draw()
+        self.world.item_list.draw()
+        self.world.food_list.draw()
        
-        minutes = int(self.world.total_time) // 60
-        seconds = int(self.world.total_time) % 60
-        output = f"Time: {minutes:02d}:{seconds:02d}"
-        if not self.timer_text or self.timer_text.text != output:
-            self.timer_text = arcade.create_text(output, arcade.color.BLACK, 10)
+       
+      #######################################################
+        output = f"Score: {self.world.score}"
+        if not self.score_text or output != self.score_text.text:
+            self.score_text = arcade.create_text(output, arcade.color.WHITE, 14)
+        arcade.render_text(self.score_text, 10, 20)
+        #######################################################
+        output = f"Energy: {self.world.energy} %"
+        if not self.energy_text or output != self.energy_text.text:
+            self.energy_text = arcade.create_text(output, arcade.color.WHITE, 14)
+        arcade.render_text(self.energy_text, 140, 20)
 
-        # Output the timer text.
-        arcade.render_text(self.timer_text, 700, 560)
+        if self.world.game_over:
+            arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
+                                      SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
+            output = f"Your Score: {self.world.score}"
+            if not self.score_text or output != self.score_text.text:
+                self.score_text = arcade.create_text(output, arcade.color.WHITE, 30)
+            arcade.render_text(self.score_text, 300, 300)
+        if not self.world.start_game:
+            arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
+                                      SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
 
     def update(self,delta):
         self.world.update(delta)

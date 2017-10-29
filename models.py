@@ -1,7 +1,7 @@
 import arcade
 import time
 import random
-MOVEMENT_SPEED = 3
+MOVEMENT_SPEED = 5
 CHAR_SCALE = 1
 
 class Model():
@@ -163,13 +163,13 @@ class Player(arcade.Sprite):
         self.hit_wall(wall=self.world.wall_6,top_height=44 ,
                         bottom_height=5,left_width=185,right_width=175)
         self.hit_wall(wall=self.world.wall_7,top_height=70 ,
-                        bottom_height=5,left_width=35,right_width=35)
+                        bottom_height=5,left_width=35,right_width=45)
         self.hit_wall(wall=self.world.wall_8,top_height=67.5 ,         
-                        bottom_height=15,left_width=35,right_width=35)
+                        bottom_height=15,left_width=35,right_width=45)
         self.hit_wall(wall=self.world.wall_9,top_height=70,
-                        bottom_height=5,left_width=35,right_width=35)
+                        bottom_height=5,left_width=35,right_width=45)
         self.hit_wall(wall=self.world.wall_10,top_height=67.5 ,
-                        bottom_height=15,left_width=35,right_width=35)
+                        bottom_height=15,left_width=35,right_width=45)
 
         ########################################################################
         if self.left < 0:
@@ -314,19 +314,19 @@ class Ghost(arcade.Sprite):
             if abs(self.center_x-self.world.player.center_x)  >= 10 :
                 
                 if self.center_x < self.world.player.center_x:
-                    self.change_x = 2
+                    self.change_x = 4
                     self.change_y =0
                 elif self.center_x >= self.world.player.center_x:
-                    self.change_x = -2
+                    self.change_x = -4
                     self.change_y = 0
             
             elif abs(self.center_y-self.world.player.center_y) >=20: 
                 
                 if self.center_y < self.world.player.center_y:
-                   self.change_y = 2
+                   self.change_y = 4
                    self.change_x = 0
                 elif self.center_y >= self.world.player.center_y:
-                    self.change_y = -2
+                    self.change_y = -4
                     self.change_x = 0
             else:
                 self.change_x = 0
@@ -336,19 +336,19 @@ class Ghost(arcade.Sprite):
 
             if self.dir == 1 :
                 self.change_y = 0
-                self.change_x = 2
+                self.change_x = 4
                                 
             if self.dir == 2 :
                 self.change_y = 0
-                self.change_x = -2
+                self.change_x = -4
                                 
             if self.dir == 3 :
                 self.change_x = 0
-                self.change_y = 2
+                self.change_y = 4
                                 
             if self.dir == 4 :
                 self.change_x = 0
-                self.change_y = -2
+                self.change_y = -4
         #**************************************************************
         self.hit_wall(wall=self.world.wall_1,top_height=44 ,
                         bottom_height=5,left_width=120,right_width=135)
@@ -393,13 +393,24 @@ class World:
         self.height = height
         self.total_time = 0
         self.release_ghost_time = 0
-        self.release_box_time = 0
+        self.release_bomb_time = 0
+        self.release_food_time = 0
         self.count_ghost = 0
+        self.start_game = True
+        self.game_over = False
+        self.count_down = 100
+        self.energy = 100.0
+        self.score = 0
         
         self.player_list = arcade.SpriteList()
         self.ghost_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.object_list = arcade.SpriteList()
+        self.bomb_list = arcade.SpriteList()
+        self.item_list = arcade.SpriteList()
+        self.apple_list = arcade.SpriteList()
+        self.food_list = arcade.SpriteList()
+        
         
         self.player = Player(self,width//2,height//2)
         self.player_list.append(self.player)
@@ -415,7 +426,8 @@ class World:
         self.wall_9 = Object(self,345+110,326)
         self.wall_10 = Object(self,345+110,532.5)
        
-    
+    def on_key_press(self, key, modifiers):
+        self.player.on_key_press(key, modifiers)
     def on_key_release(self, key, modifiers):
         self.player.on_key_release(key, modifiers)
         if key == arcade.key.ENTER:
@@ -424,35 +436,100 @@ class World:
     
     def update(self, delta):
         self.total_time += delta
-        
+        if self.start_game: 
+            if not self.game_over:
         #set time to release ghost #############################################
-        if self.release_ghost_time%1500 == 0:
-            self.release_ghost_time += 1
-            self.count_ghost += 3   
-            self.ghost_w = Ghost(self,0,random.randint(0,225))
-            self.ghost_n = Ghost(self,random.randint(360,440),self.height)
-            self.ghost_e = Ghost(self,self.width,random.randint(0,225))
-        
-            self.ghost_list.append(self.ghost_w)
-            self.ghost_list.append(self.ghost_n)
-            self.ghost_list.append(self.ghost_e)
-        else:
-            self.release_ghost_time += 1
-        ########################################################################
-        ########################################################################
-        self.player_list.update()
-        self.ghost_list.update()
-        self.object_list.update()
+                if self.release_ghost_time%500 == 0:
+                    self.release_ghost_time += 1
+                    self.count_ghost += 3   
+                    self.ghost_w = Ghost(self,0,random.randint(0,225))
+                    self.ghost_n = Ghost(self,random.randint(360,440),self.height)
+                    self.ghost_e = Ghost(self,self.width,random.randint(0,225))
+                
+                    self.ghost_list.append(self.ghost_w)
+                    self.ghost_list.append(self.ghost_n)
+                    self.ghost_list.append(self.ghost_e)
+                else:
+                    self.release_ghost_time += 1
+                ########################################################################
+                if self.release_bomb_time%100 == 0:
+                    self.release_bomb_time += 1
+
+                    bomb = arcade.Sprite("images/bomb.png",0.8)
+                    bomb.center_x = random.randint(0,self.width)
+                    bomb.center_y = random.randint(0,self.height)
+                    self.bomb_list.append(bomb)
+                    self.item_list.append(bomb)
+                else:
+                    self.release_bomb_time +=1
+
+                if len(self.item_list) != 0:
+                    if self.count_down >0 :
+                        self.count_down -=1 
+                    else: 
+                        self.bomb_list[0].kill()
+                           
+                    #########################################################################
+                if self.release_food_time%100 == 0:
+                    self.release_food_time += 1
+
+                    apple = arcade.Sprite("images/apple.png",0.8)
+                    apple.center_x = random.randint(0,self.width)
+                    apple.center_y = random.randint(0,self.height)
+                    self.apple_list.append(apple)
+                    self.food_list.append(apple)
+                else:
+                    self.release_food_time +=1    
+                
+                    '''if len(self.food_list) != 0:
+                        if self.count_down >0 :
+                            self.count_down -=1 
+                        else: 
+                            self.apple_list[0].kill()'''
+                            
+                    #########################################################################    
+                    ##########################################################################
+                check_collision = arcade.check_for_collision_with_list(self.player,self.ghost_list)
+                if len(check_collision) > 0:
+                            
+                    for ghost in check_collision:
+                        ghost.kill()
+                        if self.energy > 0.00:        
+                            self.energy -= 10.00
+
+                        elif self.energy <0.00:
+                            self.energy = 0.00
+                            self.game_over = True
+                               
+                elif self.player.change_x !=0 or self.player.change_y !=0:
+                    if self.energy > 0.00:
+                        self.energy -= 0.05
+                    else:
+                        self.energy = 0.00
+                        self.game_over = True
+                    ###############################################################################    
+                drop_item = arcade.check_for_collision_with_list(self.player,self.bomb_list)
+                if len(drop_item) > 0:
+                    for bomb in drop_item:
+                        bomb.kill()
+                    for i in range(len(self.ghost_list)):
+                        self.ghost_list[0].kill()
+                        self.score += 1
+
+                eat_apple = arcade.check_for_collision_with_list(self.player,self.apple_list)
+                if len(eat_apple) > 0:
+                    for apple in eat_apple:
+                        apple.kill()
+                        self.energy += 8
+                ########################################################################
+                self.player_list.update()
+                self.ghost_list.update()
+                self.item_list.update()
+                self.food_list.update()
 
        
-    def on_key_press(self, key, modifiers):
-        self.player.on_key_press(key, modifiers)
-        if key == arcade.key.SPACE:
-            for i in range(self.count_ghost):
-                self.ghost_list[i-self.count_ghost].kill()
-            self.count_ghost = 0
-        if key == arcade.key.ENTER:
-            self.player.alpha = 0
+    
+       
 
 
         
