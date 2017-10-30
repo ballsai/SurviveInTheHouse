@@ -1,6 +1,6 @@
 import arcade
 from random import randint
-from models import World,Player,Object,Ghost
+from models import World,Player,Object,Ghost,Bullet
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
@@ -28,6 +28,7 @@ class SurviveWindow(arcade.Window):
         arcade.set_background_color(arcade.color.DARK_SLATE_GRAY)
         self.timer_text = None
         self.background = arcade.load_texture("images/background.png")
+        self.intro = arcade.load_texture("images/intro.png")
         self.score_text = None
         self.energy_text = None
         
@@ -45,18 +46,22 @@ class SurviveWindow(arcade.Window):
         
 
     def on_key_press(self, key, modifiers): 
-       self.world.on_key_press(key,modifiers)
+        self.world.on_key_press(key,modifiers)
+        if key == arcade.key.ENTER:
+            if not self.world.start_game:
+                self.world.start_game = True
+       
+
 
     def on_key_release(self, key, modifiers):
        self.world.on_key_release(key,modifiers)
-    
+        
     
     def on_draw(self):
         arcade.start_render()    
 
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-                                      SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
-       
+                                      SCREEN_WIDTH, SCREEN_HEIGHT, self.background) 
         self.wall_1.draw()
         self.wall_7.draw()
         self.wall_2.draw()
@@ -72,7 +77,7 @@ class SurviveWindow(arcade.Window):
         self.world.player_list.draw()
         self.world.item_list.draw()
         self.world.food_list.draw()
-       
+        self.world.bullet_list.draw()
        
       #######################################################
         output = f"Score: {self.world.score}"
@@ -94,12 +99,10 @@ class SurviveWindow(arcade.Window):
             arcade.render_text(self.score_text, 300, 300)
         if not self.world.start_game:
             arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-                                      SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
+                                      SCREEN_WIDTH, SCREEN_HEIGHT, self.intro)
 
     def update(self,delta):
         self.world.update(delta)
-        
-        
 
 if __name__ == '__main__':
     window = SurviveWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
