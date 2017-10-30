@@ -311,23 +311,24 @@ class Ghost(arcade.Sprite):
         if (abs(self.center_x-self.world.player.center_x) <=200 and  
             abs(self.center_y-self.world.player.center_y) <=150 and 
             self.world.player.alpha!=0):
-            if abs(self.center_x-self.world.player.center_x)  >= 10 :
+            if abs(self.center_x-self.world.player.center_x)  >= 5 :
                 
                 if self.center_x < self.world.player.center_x:
                     self.change_x = 4
                     self.change_y =0
+
                 elif self.center_x >= self.world.player.center_x:
                     self.change_x = -4
-                    self.change_y = 0
+                    self.change_y =0
             
-            elif abs(self.center_y-self.world.player.center_y) >=10: 
+            elif abs(self.center_y-self.world.player.center_y) >=5: 
                 
                 if self.center_y < self.world.player.center_y:
-                   self.change_y = 4
-                   self.change_x = 0
-                elif self.center_y >= self.world.player.center_y:
-                    self.change_y = -4
                     self.change_x = 0
+                    self.change_y =4
+                elif self.center_y >= self.world.player.center_y:
+                    self.change_x = 0
+                    self.change_y =-4
             else:
                 self.change_x = 0
                 self.change_y = 0
@@ -383,7 +384,9 @@ class Ghost(arcade.Sprite):
             self.top = self.world.height -1 
             self.change_dir_time = 0 
  ########################################################################
-        
+class Bullet(arcade.Sprite):
+    def update(self):
+        self.center_y += BULLET_SPEED        
  ########################################################################
    
 class World:
@@ -398,11 +401,12 @@ class World:
         self.count_ghost = 0
         self.start_game = True
         self.game_over = False
-        self.count_down = 300
+        self.count_down = 600
         self.energy = 100.0
         self.score = 0
         
         self.player_list = arcade.SpriteList()
+        self.bullet_list = arcade.SpriteList()
         self.ghost_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.object_list = arcade.SpriteList()
@@ -425,9 +429,27 @@ class World:
         self.wall_8 = Object(self,345,532.5)
         self.wall_9 = Object(self,345+110,326)
         self.wall_10 = Object(self,345+110,532.5)
+        self.wall_list.append(self.wall_1)
+        self.wall_list.append(self.wall_2)
+        self.wall_list.append(self.wall_3)
+        self.wall_list.append(self.wall_4)
+        self.wall_list.append(self.wall_5)
+        self.wall_list.append(self.wall_6)
+        self.wall_list.append(self.wall_7)
+        self.wall_list.append(self.wall_8)
+        self.wall_list.append(self.wall_9)
+        self.wall_list.append(self.wall_10)
        
     def on_key_press(self, key, modifiers):
         self.player.on_key_press(key, modifiers)
+        if key == arcade.key.W:
+            bullet = Bullet("images/laserBlue01.png", 1)
+            bullet.angle = 90
+
+            # Position the bullet
+            bullet.center_x = self.player.center_x
+            bullet.bottom = self.player.top
+            self.bullet_list.append(bullet)
     def on_key_release(self, key, modifiers):
         self.player.on_key_release(key, modifiers)
         if key == arcade.key.ENTER:
@@ -439,12 +461,12 @@ class World:
         if self.start_game: 
             if not self.game_over:
         #set time to release ghost #############################################
-                if self.release_ghost_time%500 == 0:
+                if self.release_ghost_time%300 == 0:
                     self.release_ghost_time += 1
                     self.count_ghost += 3   
-                    self.ghost_w = Ghost(self,0,random.randint(0,225))
-                    self.ghost_n = Ghost(self,random.randint(360,440),self.height)
-                    self.ghost_e = Ghost(self,self.width,random.randint(0,225))
+                    self.ghost_w = Ghost(self,0,random.randint(0,200))
+                    self.ghost_n = Ghost(self,random.randint(380,440),self.height)
+                    self.ghost_e = Ghost(self,self.width,random.randint(0,200))
                 
                     self.ghost_list.append(self.ghost_w)
                     self.ghost_list.append(self.ghost_n)
@@ -458,8 +480,14 @@ class World:
                     bomb = arcade.Sprite("images/bomb.png",0.8)
                     bomb.center_x = random.randint(0,self.width)
                     bomb.center_y = random.randint(0,self.height)
-                    self.bomb_list.append(bomb)
-                    self.item_list.append(bomb)
+                
+                    if ( ( 10<bomb.center_x <self.width-10  and 10<bomb.center_y<220) or
+                         ( 10<bomb.center_x <340 and 273<bomb.center_y<510 )          or 
+                         ( 460<bomb.center_x<self.width-10 and 273<bomb.center_y<510) or   
+                           360<bomb.center_x<440 and 0<bomb.center_y<self.height-20 ):                                                    
+                        self.bomb_list.append(bomb)
+                        self.item_list.append(bomb)
+
                 else:
                     self.release_bomb_time +=1
 
@@ -468,17 +496,21 @@ class World:
                             self.count_down -=1 
                         else: 
                             self.bomb_list[0].kill()
-                            self.count_down = 300
+                            self.count_down = 600
                            
                     #########################################################################
-                if self.release_food_time%400 == 0:
+                if self.release_food_time%100 == 0:
                     self.release_food_time += 1
 
                     apple = arcade.Sprite("images/apple.png",0.8)
                     apple.center_x = random.randint(0,self.width)
                     apple.center_y = random.randint(0,self.height)
-                    self.apple_list.append(apple)
-                    self.food_list.append(apple)
+                    if ( ( 10<apple.center_x <self.width-10  and 10<apple.center_y<220) or
+                         ( 10<apple.center_x <340 and 273<apple.center_y<510 )          or 
+                         ( 460<apple.center_x<self.width-10 and 273<apple.center_y<510) or   
+                           360<apple.center_x<440 and 0<apple.center_y<self.height-20 ):   
+                        self.apple_list.append(apple)
+                        self.food_list.append(apple)
                 else:
                     self.release_food_time +=1    
                     if len(self.food_list) != 0:
@@ -486,7 +518,7 @@ class World:
                             self.count_down -=1 
                         else: 
                             self.apple_list[0].kill()
-                            self.count_down = 300
+                            self.count_down = 600
                             
                     #########################################################################    
                     ##########################################################################
@@ -494,8 +526,8 @@ class World:
                 if len(check_collision) > 0:
                             
                     for ghost in check_collision:
-                        if (abs(self.player.center_x-ghost.center_x) <10 and
-                            abs(self.player.center_y-ghost.center_y) <10):
+                        if (abs(self.player.center_x-ghost.center_x) <5 and
+                            abs(self.player.center_y-ghost.center_y) <5):
                             ghost.kill()
                             if self.energy > 0.00:        
                                 self.energy -= 10.00
