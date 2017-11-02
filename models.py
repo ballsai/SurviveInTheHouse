@@ -491,17 +491,18 @@ class World:
 
                 if self.release_bomb_time%400 == 0:
                     self.release_bomb_time += 1
-                    for i in range(self.random_time): 
-                        bomb = arcade.Sprite("images/bomb.png",0.8)
-                        bomb.center_x = random.randint(0,self.width)
-                        bomb.center_y = random.randint(0,self.height)
-                
-                        if ( ( 10<bomb.center_x <self.width-10  and 10<bomb.center_y<220) or
-                             ( 10<bomb.center_x <340 and 273<bomb.center_y<510 )          or 
-                             ( 460<bomb.center_x<self.width-10 and 273<bomb.center_y<510) or   
-                               360<bomb.center_x<440 and 0<bomb.center_y<self.height-20 ):                                                    
-                            self.bomb_list.append(bomb)
-                            self.item_list.append(bomb)
+                    if(self.random_time <4):
+                        for i in range(self.random_time): 
+                            bomb = arcade.Sprite("images/bomb.png",0.8)
+                            bomb.center_x = random.randint(0,self.width)
+                            bomb.center_y = random.randint(0,self.height)
+                    
+                            if ( ( 10<bomb.center_x <self.width-10  and 10<bomb.center_y<220) or
+                                 ( 10<bomb.center_x <340 and 273<bomb.center_y<510 )          or 
+                                 ( 460<bomb.center_x<self.width-10 and 273<bomb.center_y<510) or   
+                                   360<bomb.center_x<440 and 0<bomb.center_y<self.height-20 ):                                                    
+                                self.bomb_list.append(bomb)
+                                self.item_list.append(bomb)
 
                 else:
                     self.release_bomb_time +=1
